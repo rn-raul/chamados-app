@@ -1,45 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5174/api'; // Ajuste para o URL do seu backend
 export function Login() {
-  const [usuario, setUsuario] = useState('');
-  const [senha, setSenha] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState(''); // Novo estado para tratar os erros
-  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // 2. Inicialize o hook
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setErro(''); // Limpa os erros anteriores antes de tentar novamente
     
-    try {
-      // Chamada real para a nossa API Node.js
-      const response = await axios.post(`${API_BASE_URL}/login`, {
-        usuario,
-        senha
-      });
-      
-      // CORREÇÃO AQUI: Mudamos de .token para .access_token
-      if (response.data && response.data.access_token) {
-        // Salvamos o access_token no localStorage
-        localStorage.setItem('@Logistica:token', response.data.access_token);
-        localStorage.setItem('@Logistica:usuario', usuario); // Opcional: salva o nome do usuário para exibir no dashboard
-        navigate('/dashboard');
-      }
-    } catch (error: any) {
-      console.error("Erro no login:", error);
-      
-      // Pega a mensagem de erro que vem do backend
-      const mensagemErro = error.response?.data?.erro || "Erro ao conectar com o servidor.";
-  
-      
-      // Adicionado: Seta o estado de erro para aparecer aquela caixinha vermelha no seu layout
-      setErro(mensagemErro);
-    } finally {
-      setLoading(false);
+    // Simulação básica de regra de negócio baseada no RBAC
+    if (username.toLowerCase() === 'ti') {
+      navigate('/dashboard-ti');
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -67,8 +40,8 @@ export function Login() {
             <input
               id="username"
               type="text"
-              value={usuario}
-              onChange={(e) => setUsuario(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="Digite seu usuário"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               required
@@ -83,8 +56,8 @@ export function Login() {
             <input
               id="password"
               type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               required
@@ -92,7 +65,7 @@ export function Login() {
           </div>
 
           {/* Botão de Submit */}
-          <button 
+          <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md focus:ring-4 focus:ring-blue-500/50"
           >
