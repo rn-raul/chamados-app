@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
-import { DashboardTI } from './pages/DashboardTI';
-import { DashboardSetor } from './pages/DashboardSetor';
 import { NovoChamado } from './pages/NovoChamado';
 import { MeusChamados } from './pages/MeusChamados';
 import { DetalhesChamado } from './pages/DetalhesChamado';
@@ -38,9 +36,6 @@ function App() {
         
         {/* 2. Rotas protegidas envelopadas pelo Layout */}
         <Route element={<Layout />}>
-          <Route path="/dashboard-ti" element={<DashboardTI />} />
-          <Route path="/dashboard" element={<DashboardSetor />} />
-          {/* Crie páginas vazias depois para essas rotas não quebrarem a tela */}
           <Route path="/chamados" element={<MeusChamados />} />
           <Route path="/novo-chamado" element={<NovoChamado />} />
           <Route path="/relatorios" element={<Relatorios />} />

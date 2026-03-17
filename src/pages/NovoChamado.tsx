@@ -1,36 +1,40 @@
 import { useState, useEffect } from 'react';
 import { Save, X, Clock, User, Building, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // Certifique-se de que o caminho está correto
-import { SETORES_MAP, ASSUNTOS_MAP } from '../utils/dicionarios'; // Importando os dicionários
+import api from '../services/api';
+import { SETORES_MAP, ASSUNTOS_MAP } from '../utils/dicionarios';
+
+// 1. Importando o contexto para acessar o usuário logado
+import { useAuth } from '../contexts/AuthContext'; 
 
 export function NovoChamado() {
   const navigate = useNavigate();
+  
+  // 2. Puxando os dados reais do usuário da nossa Context API
+  const { user } = useAuth(); 
 
-  // Simulando dados do usuário logado (futuramente virá do Contexto de Autenticação)
-  const usuarioLogado = {
-    nome: 'RAUL LOPES', // Coloquei em maiúsculo para combinar com a Sankhya
-    codigo: '1936', // Adicionado o código do usuário para a Sankhya
-    setorOrigem: '14', // Usando o ID do setor (ex: 14 = TI)
-  };
-
-  // Estado para capturar a data e hora atual
   const [dataHoraAtual, setDataHoraAtual] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const agora = new Date();
-    // Formata a data para o padrão local (ex: 15/03/2026 10:30)
     setDataHoraAtual(agora.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }));
   }, []);
 
-  // Estado do formulário atualizado para os campos da Sankhya
+  // 3. Estado do formulário. Deixamos o contato em branco inicialmente
   const [formData, setFormData] = useState({
     idSetorDestino: '',
-    contato: usuarioLogado.nome, // Já preenche com o nome do logado
+    contato: '', 
     idAssunto: '',
-    problema: '', // Equivalente à 'descricao' do seu código original
+    problema: '', 
   });
+
+  // 4. Preenche o campo de "Contato" automaticamente assim que o user estiver disponível
+  useEffect(() => {
+    if (user?.nomeUsuario) {
+      setFormData((prev) => ({ ...prev, contato: user.nomeUsuario }));
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -39,14 +43,23 @@ export function NovoChamado() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Trava de segurança: Garante que o usuário tem um código Sankhya atrelado a ele
+    // ⚠️ NOTA: Verifique se no seu AuthContext o código do usuário se chama 'codigo' mesmo (ou 'codUsu', 'codUsuInc', etc)
+    const codigoUsuario = user?.codigoUsuario; 
+
+    if (!codigoUsuario) {
+      alert('Erro: Não foi possível identificar o seu código de usuário. Tente fazer login novamente.');
+      return;
+    }
+
     setLoading(true);
     
-    // Objeto final que será enviado para a API (Sankhya)
     const payloadSankhya = {
       idSetorDestino: formData.idSetorDestino,
       contato: formData.contato,
       idAssunto: formData.idAssunto,
-      codUsuInc: usuarioLogado.codigo,
+      codUsuInc: codigoUsuario, // Mandando o código real pro banco!
       problema: formData.problema,
     };
 
@@ -55,7 +68,7 @@ export function NovoChamado() {
 
       if (response.data.sucesso) {
         alert('Chamado aberto com sucesso!');
-        navigate('/chamados'); // Volta para a lista de chamados
+        navigate('/chamados'); 
       } else {
         alert('Erro ao criar chamado: ' + response.data.erro);
       }
@@ -68,7 +81,7 @@ export function NovoChamado() {
   };
 
   return (
-    <div className="max-w-10xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Cabeçalho da Página */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Abrir Novo Chamado</h1>
@@ -89,7 +102,7 @@ export function NovoChamado() {
               <label className="block text-xs font-medium text-gray-500 mb-1">Solicitante</label>
               <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-2 rounded-md border border-gray-200">
                 <User size={16} className="text-gray-400" />
-                <span className="text-sm font-medium">{usuarioLogado.nome}</span>
+                <span className="text-sm font-medium">{user?.nomeUsuario || 'Carregando...'}</span>
               </div>
             </div>
 
@@ -98,8 +111,9 @@ export function NovoChamado() {
               <label className="block text-xs font-medium text-gray-500 mb-1">Setor Origem</label>
               <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-2 rounded-md border border-gray-200">
                 <Building size={16} className="text-gray-400" />
-                {/* Busca o nome do setor pelo ID usando o dicionário */}
-                <span className="text-sm font-medium">{SETORES_MAP[usuarioLogado.setorOrigem] || 'Desconhecido'}</span>
+                <span className="text-sm font-medium">
+                  {user?.setorNome || SETORES_MAP[user?.setorId as string] || 'Desconhecido'}
+                </span>
               </div>
             </div>
 
@@ -186,7 +200,6 @@ export function NovoChamado() {
               />
             </div>
             
-             {/* Removi o campo "Prioridade" daqui porque, segundo o JSON que me enviaste, o Sankhya não pede ele no INSERT inicial. Caso o Sankhya precise, podemos adicioná-lo depois. */}
              <div className="flex flex-col justify-center">
                 <span className="text-xs text-gray-500 italic flex items-center gap-1 mt-6">
                   * A prioridade será avaliada pelo analista responsável.
@@ -216,7 +229,7 @@ export function NovoChamado() {
         <div className="bg-gray-50 border-t border-gray-200 p-6 flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => navigate('/chamados')} // Ajustei a navegação para voltar à lista
+            onClick={() => navigate('/chamados')}
             className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
             <X size={18} /> Cancelar
