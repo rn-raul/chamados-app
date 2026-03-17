@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Ticket, Clock, AlertCircle, Search, ArrowUpRight, ArrowDownLeft, Filter } from 'lucide-react';
+import { Ticket, Clock, AlertCircle, Search, ArrowUpRight, ArrowDownLeft, Filter, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext'; 
@@ -19,7 +19,7 @@ interface Chamado {
 }
 
 // Tipo para o nosso novo filtro
-type FiltroTipo = 'TODOS' | 'RECEBIDOS' | 'ENVIADOS';
+type FiltroTipo = 'TODOS' | 'RECEBIDOS' | 'ENVIADOS' | 'CONCLUÍDOS';
 
 const formatarComoTitulo = (texto?: string) => {
   if (!texto) return '';
@@ -73,22 +73,29 @@ export function MeusChamados() {
     setPaginaAtual(1);
   }, [busca, filtroTipo]);
 
-  // Aplicando a busca de texto E o filtro de tipo (Aba)
   const chamadosFiltrados = chamados.filter(chamado => {
     // 1. Filtro de texto
     const textoMatch = chamado.idChamado.toString().includes(busca) ||
                        chamado.nomeAssunto.toLowerCase().includes(busca.toLowerCase()) ||
                        chamado.contato.toLowerCase().includes(busca.toLowerCase());
 
-    // 2. Filtro de tipo (Recebido vs Enviado)
+    // 2. Filtro de tipo (Recebido vs Enviado vs Concluído)
     let tipoMatch = true;
-    const abertoPorMim = chamado.codUsuInc === codigoUsuario?.toString();
-    const paraMeuSetor = chamado.idSetorDestino === user?.setorId?.toString();
+    
+    // Usamos String() para evitar bugs caso a API devolva números (ex: 3 em vez de '3')
+    const abertoPorMim = String(chamado.codUsuInc) === String(codigoUsuario);
+    const paraMeuSetor = String(chamado.idSetorDestino) === String(user?.setorId);
+    
+    // Verifica se o status é 3 (Concluído). Se no seu banco o status fechado/concluído 
+    // tiver outro ID, basta mudar aqui (ou colocar: === '3' || === '4')
+    const encerrado = String(chamado.idStatus) === '3'; 
 
     if (filtroTipo === 'ENVIADOS') {
       tipoMatch = abertoPorMim;
     } else if (filtroTipo === 'RECEBIDOS') {
       tipoMatch = paraMeuSetor;
+    } else if (filtroTipo === 'CONCLUÍDOS') {
+      tipoMatch = encerrado;
     }
 
     return textoMatch && tipoMatch;
@@ -161,6 +168,12 @@ export function MeusChamados() {
             className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${filtroTipo === 'ENVIADOS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             <ArrowUpRight size={16} /> Abertos por mim
+          </button>
+          <button
+            onClick={() => setFiltroTipo('CONCLUÍDOS')}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${filtroTipo === 'CONCLUÍDOS' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <CheckCircle2 size={16} /> Concluídos
           </button>
         </div>
       </div>
