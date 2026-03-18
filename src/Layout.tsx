@@ -9,12 +9,13 @@ import {
   Menu, 
   Bell,
   User,
-  X 
+  X,
+  Headset // <-- Adicionamos o ícone de Helpdesk aqui
 } from 'lucide-react';
 
 import api from './services/api';
 import { useAuth } from './contexts/AuthContext';
-import logo from "../src/assets/logo.svg"; // Certifique-se de ter uma logo na pasta assets
+
 export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -61,22 +62,17 @@ export function Layout() {
         fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-slate-300 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:block shadow-2xl lg:shadow-none
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Área da Logo */}
-        <div className="h-20 flex items-center px-6 bg-slate-950/50 border-b border-slate-800 justify-center">
-          <img 
-            src={logo} 
-            alt="Logo da Empresa" 
-            className="h-30 w-auto object-contain drop-shadow-md "
-            // Se a imagem não carregar por algum motivo, mostramos um texto de fallback
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }}
-          />
-          {/* Fallback de texto caso a imagem não exista */}
-          <h1 className="hidden text-xl font-bold text-blue-500">
-            Sankhya<span className="text-white">Tickets</span>
-          </h1>
+        {/* Área da Logo - Agora com ícone e texto TicketGo */}
+        <div className="h-20 flex items-center px-6 bg-slate-950/50 border-b border-slate-800 justify-between lg:justify-center">
+          
+          <div className="flex items-center gap-2.5">
+            <div className="bg-blue-600 p-1.5 rounded-lg shadow-lg shadow-blue-900/50">
+              <Headset className="text-white" size={28} />
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-white">
+              Ticket<span className="text-blue-500">Go</span>
+            </h1>
+          </div>
 
           <button 
             onClick={() => setIsSidebarOpen(false)} 

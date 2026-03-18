@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Ticket, Clock, AlertCircle, Search, ArrowUpRight, ArrowDownLeft, Filter, CheckCircle2 } from 'lucide-react';
+import { Ticket, Clock, AlertCircle, Search, ArrowUpRight, ArrowDownLeft, Filter, CheckCircle2, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext'; 
-
+import * as XLSX from 'xlsx';
 interface Chamado {
   idChamado: number;
   contato: string;
@@ -74,33 +74,65 @@ export function MeusChamados() {
   }, [busca, filtroTipo]);
 
   const chamadosFiltrados = chamados.filter(chamado => {
-    // 1. Filtro de texto
+    // 1. Filtro de texto (Busca)
     const textoMatch = chamado.idChamado.toString().includes(busca) ||
                        chamado.nomeAssunto.toLowerCase().includes(busca.toLowerCase()) ||
                        chamado.contato.toLowerCase().includes(busca.toLowerCase());
 
-    // 2. Filtro de tipo (Recebido vs Enviado vs Concluído)
-    let tipoMatch = true;
-    
-    // Usamos String() para evitar bugs caso a API devolva números (ex: 3 em vez de '3')
+    // 2. Variáveis de estado e propriedade do chamado
     const abertoPorMim = String(chamado.codUsuInc) === String(codigoUsuario);
     const paraMeuSetor = String(chamado.idSetorDestino) === String(user?.setorId);
-    
-    // Verifica se o status é 3 (Concluído). Se no seu banco o status fechado/concluído 
-    // tiver outro ID, basta mudar aqui (ou colocar: === '3' || === '4')
     const encerrado = String(chamado.idStatus) === '3'; 
 
-    if (filtroTipo === 'ENVIADOS') {
-      tipoMatch = abertoPorMim;
-    } else if (filtroTipo === 'RECEBIDOS') {
-      tipoMatch = paraMeuSetor;
-    } else if (filtroTipo === 'CONCLUÍDOS') {
+    // 3. Lógica de Filtro por Abas (Tipo)
+    let tipoMatch = true;
+
+    if (filtroTipo === 'TODOS') {
+      tipoMatch = true; // Mostra abertos, em andamento e concluídos
+    } 
+    else if (filtroTipo === 'RECEBIDOS') {
+      // Para minha fila E que NÃO estejam concluídos
+      tipoMatch = paraMeuSetor && !encerrado;
+    } 
+    else if (filtroTipo === 'ENVIADOS') {
+      // Abertos por mim E que NÃO estejam concluídos
+      tipoMatch = abertoPorMim && !encerrado;
+    } 
+    else if (filtroTipo === 'CONCLUÍDOS') {
+      // APENAS concluídos, independente de quem abriu ou recebeu
       tipoMatch = encerrado;
     }
 
     return textoMatch && tipoMatch;
   });
+  const exportarParaExcel = () => {
+    if (chamadosFiltrados.length === 0) {
+      alert('Não há dados para exportar com o filtro atual.');
+      return;
+    }
 
+    // 1. Mapeamos os dados para deixar as colunas em português e bonitas no Excel
+    const dadosParaExcel = chamadosFiltrados.map((chamado) => ({
+      'ID': chamado.idChamado,
+      'Solicitante': chamado.contato,
+      'Setor de Origem': chamado.setorOrigem,
+      'Assunto': chamado.nomeAssunto,
+      'Descrição do Problema': chamado.problema,
+      'Status': chamado.nomeStatus,
+      'Prioridade': chamado.prioridade,
+      'Data de Abertura': chamado.dataAbertura,
+    }));
+
+    // 2. Criamos uma planilha (worksheet) com esses dados
+    const worksheet = XLSX.utils.json_to_sheet(dadosParaExcel);
+
+    // 3. Criamos um arquivo (workbook) e adicionamos a planilha nele
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Chamados');
+
+    // 4. Disparamos o download do arquivo
+    XLSX.writeFile(workbook, 'Relatorio_Meus_Chamados.xlsx');
+  };
   const indexUltimo = paginaAtual * itensPorPagina;
   const indexPrimeiro = indexUltimo - itensPorPagina;
   const chamadosPagina = chamadosFiltrados.slice(indexPrimeiro, indexUltimo);
@@ -145,6 +177,13 @@ export function MeusChamados() {
                 className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl w-full sm:w-72 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 text-slate-700"
               />
             </div>
+            <button
+              onClick={exportarParaExcel}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 rounded-lg transition-colors"
+            >
+              <Download size={16} />
+              Exportar para Excel
+            </button>
           </div>
         </div>
 
