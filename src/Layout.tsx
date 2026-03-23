@@ -4,10 +4,8 @@ import {
   Ticket, 
   PlusCircle, 
   BarChart3, 
-  Settings, 
   LogOut, 
   Menu, 
-  Bell,
   User,
   X,
   Headset // <-- Adicionamos o ícone de Helpdesk aqui
@@ -131,12 +129,7 @@ export function Layout() {
             </h2>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-6">
-            <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full relative transition-all">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
-
+          <div className="flex items-center gap-3 sm:gap-6">          
             <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
 
             {/* ÁREA DO PERFIL DO USUÁRIO */}
@@ -174,13 +167,6 @@ export function Layout() {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors"
                     >
                       <User size={18} className="text-slate-400" /> Meu Perfil
-                    </Link>
-                    <Link 
-                      to="/configuracoes" 
-                      onClick={() => setIsProfileMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors"
-                    >
-                      <Settings size={18} className="text-slate-400" /> Configurações
                     </Link>
                     <div className="h-px bg-slate-100 my-1"></div>
                     <button 

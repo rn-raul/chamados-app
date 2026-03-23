@@ -180,7 +180,7 @@ export function DetalhesChamado() {
         </button>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">CHM-{chamado.idChamado}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{chamado.idChamado}</h1>
             <span className="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full border border-purple-200">
               {chamado.nomeStatus}
             </span>
