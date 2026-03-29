@@ -17,4 +17,4 @@ COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev
 
 EXPOSE 8093
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8091"]
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8093"]
