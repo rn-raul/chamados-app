@@ -10,6 +10,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 // Tipagem básica para os dados que vêm do backend
 interface RelatorioItem {
@@ -47,7 +48,7 @@ export function Relatorios() {
       const token = localStorage.getItem('@SankhyaTickets:token'); 
 
       if (!token) {
-        alert('Sessão expirada. Por favor, faça login novamente.');
+        toast.error('Sessão expirada. Por favor, faça login novamente.');
         setCarregando(false);
         return;
       }
@@ -77,11 +78,11 @@ export function Relatorios() {
       if (json.sucesso) {
         setDados(json.dados);
       } else {
-        alert('Erro ao buscar relatórios: ' + json.erro);
+        toast.error(json.mensagem || 'Erro ao gerar relatório. Tente novamente.');
       }
     } catch (error) {
       console.error('Falha na requisição:', error);
-      alert('Falha de conexão com o servidor ao gerar relatório.');
+      toast.error('Falha de conexão com o servidor ao gerar relatório.');
     } finally {
       setCarregando(false);
     }
@@ -102,7 +103,7 @@ export function Relatorios() {
 
   const handleExportar = (formato: string) => {
     console.log(`Exportando para ${formato}...`);
-    alert(`A exportação para ${formato} será implementada em breve!`);
+    toast.success(`A exportação para ${formato} será implementada em breve!`);
   };
 
   // ==========================================
@@ -262,7 +263,7 @@ export function Relatorios() {
                     <td className="px-6 py-4 font-semibold text-gray-900">{item.id}</td>
                     <td className="px-6 py-4">{item.dataAbertura}</td>
                     <td className="px-6 py-4">{item.setor}</td>
-                    <td className="px-6 py-4 truncate max-w-[200px]" title={item.problema}>{item.assunto}</td>
+                    <td className="px-6 py-4 truncate max-w-50" title={item.problema}>{item.assunto}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${
                         item.status === 'Concluído' ? 'bg-emerald-100 text-emerald-700' : 

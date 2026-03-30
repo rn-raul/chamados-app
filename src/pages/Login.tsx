@@ -41,8 +41,7 @@ export function Login() {
   };
 
   return (
-    // Fundo com um gradiente super suave para dar um ar mais premium
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 p-4 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-200 p-4 font-sans">
       
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10">
         
@@ -100,7 +99,7 @@ export function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Senha"
                 disabled={loading}
                 className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
                 required
@@ -130,7 +129,7 @@ export function Login() {
         </form>
 
         <div className="mt-8 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
-          Problemas com o acesso? <a href="#" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">Contate a TI</a>
+          Problemas com o acesso? <a href="https://w.app/suportetisemalo" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">Contate a TI</a>
         </div>
 
       </div>
