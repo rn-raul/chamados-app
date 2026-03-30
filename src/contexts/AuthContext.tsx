@@ -22,34 +22,48 @@ interface AuthContextData {
   limparUsuario: () => void; // Função para limpar ao sair (logout)
 }
 
-// 3. Criamos o Contexto em si
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-// 4. Criamos o "Provedor" (O componente que vai envolver nosso App)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
-  // Função que vai na nossa nova rota do Node.js buscar os dados
   const carregarPerfilUsuario = async (username: string) => {
     try {
       const response = await api.get(`/api/sankhya/usuario/${username}`);
       if (response.data.sucesso) {
-        setUser(response.data.dados); // Salva os dados na memória global!
+        setUser(response.data.dados); 
       }
     } catch (error) {
       console.error('Erro ao buscar perfil global do usuário:', error);
     }
   };
 
-  // DOCUMENTAÇÃO: Limpa o estado global e remove os dados do navegador
   const limparUsuario = () => {
     setUser(null);
-    // Removemos os dados do localStorage para garantir que a sessão foi encerrada
     localStorage.removeItem('@SankhyaTickets:token');
     localStorage.removeItem('@SankhyaTickets:usuario');
   };
 
-  // Esse useEffect verifica se existe um usuário salvo no localStorage e busca os dados de novo automaticamente!
+  // NOVA FUNÇÃO: Faz o pedido silencioso do novo token
+  const renovarTokenSilenciosamente = async () => {
+    try {
+      const tokenAtual = localStorage.getItem('@SankhyaTickets:token');
+      // Se não tem token salvo, significa que o usuário não está logado, então não fazemos nada.
+      if (!tokenAtual) return;
+
+      const response = await api.post('/api/sankhya/refresh');
+      
+      if (response.data.sucesso && response.data.token) {
+        // Substitui magicamente o token antigo pelo novo no navegador!
+        localStorage.setItem('@SankhyaTickets:token', response.data.token);
+        console.log('🔄 Token renovado com sucesso em background!');
+      }
+    } catch (error) {
+      console.error('Falha ao tentar renovar o token:', error);
+      // Se a API da Sankhya cair, você pode optar por forçar o logout chamando limparUsuario() aqui
+    }
+  };
+
   useEffect(() => {
     const savedUsername = localStorage.getItem('@SankhyaTickets:usuario');
     const token = localStorage.getItem('@SankhyaTickets:token');
@@ -57,6 +71,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (savedUsername && token) {
       carregarPerfilUsuario(savedUsername);
     }
+
+    // CRONÔMETRO DE REFRESH: 4 minutos = 240.000 milissegundos
+    const TEMPO_REFRESH = 240000; 
+
+    const intervaloDeRefresh = setInterval(() => {
+      // A cada 4 minutos, verifica se o cara está logado e renova o token
+      if (localStorage.getItem('@SankhyaTickets:token')) {
+        renovarTokenSilenciosamente();
+      }
+    }, TEMPO_REFRESH);
+
+    // Função de limpeza: destrói o cronômetro caso o AuthProvider saia da tela
+    return () => clearInterval(intervaloDeRefresh);
   }, []);
 
   return (
