@@ -41,11 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // DOCUMENTAÇÃO: Limpa o estado global e remove os dados do navegador
   const limparUsuario = () => {
     setUser(null);
+    // Removemos os dados do localStorage para garantir que a sessão foi encerrada
+    localStorage.removeItem('@SankhyaTickets:token');
+    localStorage.removeItem('@SankhyaTickets:usuario');
   };
 
-  // Efeito Mágico: Se o usuário atualizar a página (F5), o React perde a memória.
   // Esse useEffect verifica se existe um usuário salvo no localStorage e busca os dados de novo automaticamente!
   useEffect(() => {
     const savedUsername = localStorage.getItem('@SankhyaTickets:usuario');
