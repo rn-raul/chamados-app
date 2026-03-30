@@ -267,7 +267,7 @@ export function MeusChamados() {
                         )}
                       </td>
                       <td className="px-6 py-4 font-semibold text-slate-900">
-                        #{chamado.idChamado}
+                        {chamado.idChamado}
                       </td>
                       <td className="px-6 py-4 text-slate-700 font-medium">
                         {chamado.contato}

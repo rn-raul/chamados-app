@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // 1. Criamos a nossa base de conexão apontando para o seu servidor Node.js
 export const api = axios.create({
-   baseURL: import.meta.env.VITE_API_URL, 
+   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000', 
 });
 
 // ==========================================

@@ -138,7 +138,7 @@ export function Layout() {
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 className="flex items-center gap-3 p-1 pr-3 rounded-full transition-all border border-transparent hover:bg-slate-50 hover:border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
-                <div className="h-10 w-10 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold shadow-sm ring-2 ring-white">
+                <div className="h-10 w-10 bg-linear-to-tr from-blue-600 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold shadow-sm ring-2 ring-white">
                   {user?.nomeUsuario ? user.nomeUsuario.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="text-left hidden sm:block">
