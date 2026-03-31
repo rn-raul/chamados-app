@@ -10,7 +10,8 @@ import {
   CheckCircle2,
   Paperclip,
   X,
-  Lock
+  Lock,
+  Headset
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext'; 
@@ -338,6 +339,24 @@ export function DetalhesChamado() {
               </li>
             </ul>
           </div>
+          {chamado?.nomeAtendente && (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mt-6">
+              <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+                <Headset size={18} className="text-blue-600" /> 
+                Detalhes do Atendimento
+              </h3>
+              
+              <ul className="space-y-3 text-sm">
+                {/* Nome do Atendente */}
+                <li className="flex flex-col">
+                  <span className="text-xs text-gray-400 uppercase font-bold flex items-center gap-1">
+                    <User size={14}/> Atendido por
+                  </span>
+                  <span className="font-medium text-gray-800">{chamado.nomeAtendente}</span>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>

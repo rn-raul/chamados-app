@@ -192,7 +192,7 @@ export function NovoChamado() {
                 type="text"
                 id="contato"
                 name="contato"
-                value={formData.contato}
+                value={formData.contato.trim()}
                 onChange={handleChange}
                 placeholder="Ex: João - (67) 99999-9999"
                 required

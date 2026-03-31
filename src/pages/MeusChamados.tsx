@@ -32,7 +32,7 @@ export function MeusChamados() {
   const [busca, setBusca] = useState('');
   
   // Novo estado para controlar o tipo de filtro
-  const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>('TODOS');
+  const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>('RECEBIDOS');
   
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 10;
